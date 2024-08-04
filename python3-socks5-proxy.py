@@ -6,8 +6,9 @@ import logging
 USERNAME = b"user"
 PASSWORD = b"pass"
 PORT = 1080
+LOG_CREDENTIALS = True  # Set to True to log attempted username and password on failed login
 
-
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def handle_client(client_socket, client_address):
@@ -26,6 +27,10 @@ def handle_client(client_socket, client_address):
             if username == USERNAME and password == PASSWORD:
                 client_socket.sendall(b"\x01\x00")
             else:
+                if LOG_CREDENTIALS:
+                    logging.warning(f"{client_address} Failed login attempt with username: {username.decode()} and password: {password.decode()}")
+                else:
+                    logging.warning(f"{client_address} Failed login attempt with incorrect credentials")
                 client_socket.sendall(b"\x01\x01")
                 client_socket.close()
                 return
